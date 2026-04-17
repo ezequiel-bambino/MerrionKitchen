@@ -2,314 +2,647 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Bambino Pizza - Cocina</title>
+<title>Bambino Pizza - Kitchen</title>
 <link rel="manifest" href="manifest.json">
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   touch-action: manipulation;
   -ms-touch-action: manipulation;
   overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-  font-family: Arial;
-  font-size: 20px;
-  padding: 30px;
-  text-align: center;
-}
-
-.logo{
-  width: 200px;
-  display: block;
-  margin: auto;
-  margin-bottom: 15px;
-}
-
-h2{
-  margin-bottom: 5px;
-}
-
-.date{
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   font-size: 18px;
+  padding: 20px;
+  text-align: center;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 15px;
+  padding: 25px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+  width: 180px;
+  display: block;
+  margin: 0 auto 15px;
+}
+
+h2 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.date {
+  font-size: 16px;
   color: #666;
   margin-bottom: 20px;
 }
 
-.drop-section{
-  margin-bottom: 30px;
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
+/* Tabs Styles */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e0e0e0;
 }
 
-.drop-label{
-  font-size: 22px;
+.tab {
+  flex: 1;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  font-size: 18px;
   font-weight: 600;
-  margin-right: 15px;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  bottom: -2px;
 }
 
-.drop-select{
-  font-size: 22px;
-  padding: 8px 15px;
-  border-radius: 5px;
-  border: 2px solid #ccc;
+.tab.active {
+  color: #e63946;
+  border-bottom: 3px solid #e63946;
 }
 
-.row{
-  display: grid;
-  grid-template-columns: auto 60px 90px 60px;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
+.tab:hover {
+  background: #f0f0f0;
 }
 
-.ingredientBox{
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Form Styles */
+.user-section {
+  margin-bottom: 25px;
   text-align: left;
 }
 
-.ingredient{
+.user-label {
+  display: block;
+  font-size: 16px;
   font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
 }
 
-input{
+.user-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.user-input:focus {
+  outline: none;
+  border-color: #e63946;
+}
+
+.drop-section {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.drop-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.drop-select {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.drop-select:focus {
+  outline: none;
+  border-color: #e63946;
+}
+
+.drop-select:disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* Pizza Rows */
+.pizza-grid {
+  margin: 25px 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.ingredientBox {
+  text-align: left;
+}
+
+.ingredient {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+input {
   width: 70px;
-  font-size: 22px;
+  padding: 8px;
+  font-size: 18px;
   text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #e63946;
+}
+
+input:disabled {
+  background: #f5f5f5;
+  color: #999;
 }
 
 input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button{
+input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type=number]{
+input[type=number] {
   -moz-appearance: textfield;
 }
 
-button{
-  font-size: 22px;
-  padding: 8px 16px;
-}
-
-#submitBtn{
-  font-size: 26px;
-  padding: 14px 40px;
-  margin-top: 25px;
-  display: block;
-  margin: auto;
-}
-
-#resetBtn {
+.btn-qty {
+  width: 40px;
+  height: 40px;
   font-size: 20px;
-  padding: 10px 26px;
-  display: block;
-  margin: 20px auto;
-  display: none;
+  font-weight: bold;
+  border: none;
+  background: #e63946;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.note{
-  margin-top: 18px;
-  font-size: 18px;
-  color: #444;
+.btn-qty:hover {
+  background: #c1121f;
 }
 
-.last-submit{
+.btn-qty:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Action Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: 600;
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
   margin-top: 20px;
+}
+
+.btn-primary:hover {
+  background: #c1121f;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background: #357abd;
+}
+
+/* Status Messages */
+.status-message {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 14px;
+  color: #2e7d32;
+}
+
+.status-message.error {
+  background: #ffebee;
+  border-left-color: #f44336;
+  color: #c62828;
+}
+
+/* Portions Section Placeholder */
+.placeholder-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
   font-size: 16px;
-  color: #666;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 2px dashed #ddd;
+}
+
+.note {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #888;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  
+  .container {
+    padding: 15px;
+  }
+  
+  .row {
+    gap: 8px;
+  }
+  
+  input {
+    width: 60px;
+    font-size: 16px;
+  }
+  
+  .btn-qty {
+    width: 35px;
+    height: 35px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<img src="icon.png" class="logo">
-
-<h2>🍕 Cocina - Drops</h2>
-
-<div id="todayDate" class="date"></div>
-
-<div class="drop-section">
-  <label class="drop-label">Drop #:</label>
-  <select id="dropNumber" class="drop-select">
-    <option value="1">Drop 1</option>
-    <option value="2">Drop 2</option>
-    <option value="3">Drop 3</option>
-    <option value="4">Drop 4</option>
-    <option value="5">Drop 5</option>
-  </select>
-</div>
-
-<div id="lastSubmit" class="last-submit"></div>
-
-<button id="resetBtn" onclick="newForm()">NUEVO DROP</button>
-
-<div id="form"></div>
-
-<button id="submitBtn" onclick="submitDrop()">ENVIAR DROP</button>
-
-<div class="note">
-⚠️ Verifica que todo esté correcto antes de enviar
+<div class="container">
+  <img src="icon.png" class="logo" alt="Bambino Pizza">
+  
+  <h2>🍕 Kitchen Manager</h2>
+  
+  <div id="todayDate" class="date"></div>
+  
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('drops')">📦 Drops</button>
+    <button class="tab" onclick="switchTab('portions')">🥘 Portions</button>
+  </div>
+  
+  <!-- Drops Tab Content -->
+  <div id="dropsTab" class="tab-content active">
+    <div class="user-section">
+      <label class="user-label">👤 Staff Name:</label>
+      <input 
+        type="text" 
+        id="staffName" 
+        class="user-input" 
+        placeholder="Enter your name"
+        autocomplete="off"
+      >
+    </div>
+    
+    <div class="drop-section">
+      <label class="drop-label">🔢 Drop Number:</label>
+      <select id="dropNumber" class="drop-select">
+        <option value="1">Drop 1</option>
+        <option value="2">Drop 2</option>
+        <option value="3">Drop 3</option>
+        <option value="4">Drop 4</option>
+        <option value="5">Drop 5</option>
+      </select>
+    </div>
+    
+    <div id="statusMessage" class="status-message" style="display: none;"></div>
+    
+    <div id="form" class="pizza-grid"></div>
+    
+    <button id="submitBtn" class="btn-primary" onclick="submitDrop()">
+      📤 SUBMIT DROP
+    </button>
+    
+    <button id="newSubmitBtn" class="btn-secondary" onclick="resetForm()" style="display: none;">
+      🔄 NEW SUBMISSION
+    </button>
+    
+    <div class="note">
+      ⚠️ Verify all quantities before submitting
+    </div>
+  </div>
+  
+  <!-- Portions Tab Content -->
+  <div id="portionsTab" class="tab-content">
+    <div class="placeholder-message">
+      <p style="font-size: 48px; margin: 20px 0;">🥘</p>
+      <p style="font-weight: 600; margin-bottom: 10px;">Portions Section</p>
+      <p>Coming soon...</p>
+    </div>
+  </div>
 </div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwAsjdtQi-Z4SekT-bJIHJPSxkzPVtulT5PmT6BHc2nGS68EFXaG5l5UGsqk8mgD3sr/exec";
 
-function setDate(){
+// Tab Switching
+function switchTab(tabName) {
+  // Update tab buttons
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Update tab content
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  document.getElementById(tabName + 'Tab').classList.add('active');
+}
+
+// Set current date
+function setDate() {
   const today = new Date();
-  const options = { weekday:'long', day:'numeric', month:'long' };
+  const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
   document.getElementById("todayDate").innerText = today.toLocaleDateString('en-GB', options);
 }
 
-async function loadIngredients(){
-  const res = await fetch(`${SCRIPT_URL}?action=getPizzas`);
-  const data = await res.json();
-  showForm(data);
+// Load pizzas from sheet
+async function loadPizzas() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getPizzas`);
+    const data = await res.json();
+    renderPizzaForm(data);
+  } catch(error) {
+    showStatus('Error loading pizzas. Please refresh.', 'error');
+  }
 }
 
-function showForm(data){
+// Render pizza input form
+function renderPizzaForm(pizzas) {
   const container = document.getElementById("form");
   container.innerHTML = "";
   
-  data.forEach(item => {
+  pizzas.forEach(pizza => {
     const div = document.createElement("div");
     div.className = "row";
     
+    // Sanitize pizza name for ID
+    const pizzaId = pizza.replace(/[^a-zA-Z0-9]/g, '_');
+    
     div.innerHTML = `
       <div class="ingredientBox">
-        <div class="ingredient">${item}</div>
+        <div class="ingredient">${pizza}</div>
       </div>
-      <button onclick="change('${item}', -1)">-</button>
+      <button class="btn-qty" onclick="adjustQuantity('${pizzaId}', -1)">−</button>
       <input 
         type="number"
-        id="${item}"
+        id="${pizzaId}"
+        data-pizza-name="${pizza}"
         min="0"
         inputmode="numeric"
         pattern="[0-9]*"
-        value="0"
-        onkeydown="moveNext(event)"
+        placeholder="0"
+        onkeydown="handleEnterKey(event)"
+        oninput="validateInput(this)"
       >
-      <button onclick="change('${item}', 1)">+</button>
+      <button class="btn-qty" onclick="adjustQuantity('${pizzaId}', 1)">+</button>
     `;
     
     container.appendChild(div);
   });
   
-  const firstInput = document.querySelector("input");
+  // Focus on first input
+  const firstInput = document.querySelector("input[type='number']");
   if(firstInput) firstInput.focus();
 }
 
-function change(id, val){
+// Adjust quantity with +/- buttons
+function adjustQuantity(id, delta) {
   const input = document.getElementById(id);
-  let current = Number(input.value) || 0;
-  current += val;
-  if(current < 0) current = 0;
-  input.value = current;
+  if(!input || input.disabled) return;
+  
+  let current = parseInt(input.value) || 0;
+  current = Math.max(0, current + delta);
+  input.value = current || ''; // Empty string if 0
 }
 
-function moveNext(event){
-  if(event.key === "Enter"){
+// Validate input to prevent negative numbers
+function validateInput(input) {
+  let value = parseInt(input.value);
+  if(isNaN(value) || value < 0) {
+    input.value = '';
+  } else if(value === 0) {
+    input.value = '';
+  }
+}
+
+// Handle Enter key navigation
+function handleEnterKey(event) {
+  if(event.key === "Enter") {
     event.preventDefault();
-    const inputs = Array.from(document.querySelectorAll("input"));
+    const inputs = Array.from(document.querySelectorAll("input[type='number']:not(:disabled)"));
     const index = inputs.indexOf(event.target);
-    if(index > -1 && index < inputs.length - 1){
+    if(index > -1 && index < inputs.length - 1) {
       inputs[index + 1].focus();
     }
   }
 }
 
-async function submitDrop(){
-  const dropNumber = document.getElementById("dropNumber").value;
-  const inputs = document.querySelectorAll("input");
-  const data = [];
-  
-  inputs.forEach(i => {
-    data.push({ 
-      pizza: i.id, 
-      quantity: Number(i.value) || 0 
-    });
-  });
-  
-  // Verificar si al menos una pizza tiene cantidad > 0
-  const hasQuantity = data.some(item => item.quantity > 0);
-  if(!hasQuantity){
-    alert("⚠️ Debes ingresar al menos una pizza con cantidad mayor a 0");
+// Submit drop data
+async function submitDrop() {
+  // Validate staff name
+  const staffName = document.getElementById("staffName").value.trim();
+  if(!staffName) {
+    showStatus('Please enter staff name', 'error');
+    document.getElementById("staffName").focus();
     return;
   }
   
-  const confirmSubmit = confirm(`¿Confirmas el Drop #${dropNumber}?`);
-  if(!confirmSubmit) return;
+  // Collect pizza quantities
+  const inputs = document.querySelectorAll("input[type='number']");
+  const pizzas = [];
+  let hasQuantity = false;
   
+  inputs.forEach(input => {
+    const quantity = parseInt(input.value) || 0;
+    if(quantity > 0) {
+      hasQuantity = true;
+      pizzas.push({
+        pizza: input.dataset.pizzaName,
+        quantity: quantity
+      });
+    }
+  });
+  
+  // Validate at least one pizza has quantity
+  if(!hasQuantity) {
+    showStatus('Please enter at least one pizza quantity', 'error');
+    return;
+  }
+  
+  // Confirm submission
+  const dropNumber = document.getElementById("dropNumber").value;
+  const confirmMsg = `Confirm Drop #${dropNumber} submission?\n\nStaff: ${staffName}\nTotal pizzas: ${pizzas.length} types`;
+  
+  if(!confirm(confirmMsg)) {
+    return;
+  }
+  
+  // Prepare payload
   const payload = {
+    staffName: staffName,
     dropNumber: dropNumber,
-    pizzas: data
+    pizzas: pizzas
   };
+  
+  // Show loading state
+  const submitBtn = document.getElementById("submitBtn");
+  const originalText = submitBtn.innerText;
+  submitBtn.innerText = '⏳ Submitting...';
+  submitBtn.disabled = true;
   
   try {
     const res = await fetch(`${SCRIPT_URL}?action=submitDrop&data=${encodeURIComponent(JSON.stringify(payload))}`);
     const result = await res.json();
     
-    if(result.status === "ok"){
-      showSuccess();
+    if(result.status === "ok") {
+      // Lock form
+      lockForm();
+      
+      // Show success message
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      showStatus(`✅ Drop #${dropNumber} submitted successfully at ${timeStr} by ${staffName}`, 'success');
+      
+      // Hide submit button, show new submission button
+      document.getElementById("submitBtn").style.display = 'none';
+      document.getElementById("newSubmitBtn").style.display = 'block';
     } else {
-      alert("Error al guardar. Intenta nuevamente.");
+      showStatus('Error saving data. Please try again.', 'error');
+      submitBtn.innerText = originalText;
+      submitBtn.disabled = false;
     }
   } catch(error) {
-    alert("Error de conexión: " + error);
+    showStatus('Connection error. Please check your internet.', 'error');
+    submitBtn.innerText = originalText;
+    submitBtn.disabled = false;
   }
 }
 
-function showSuccess(){
-  document.getElementById("submitBtn").style.display = "none";
-  document.getElementById("resetBtn").style.display = "block";
-  
-  const now = new Date();
-  const options = { 
-    weekday:'long', 
-    day:'numeric', 
-    month:'long', 
-    hour:'2-digit', 
-    minute:'2-digit' 
-  };
-  
-  const dropNumber = document.getElementById("dropNumber").value;
-  document.getElementById("lastSubmit").innerHTML = 
-    `✅ Drop #${dropNumber} registrado: ${now.toLocaleDateString('en-GB', options)}`;
-  
-  // Deshabilitar inputs
-  const inputs = document.querySelectorAll("input");
-  inputs.forEach(i => i.disabled = true);
-  
-  // Deshabilitar select
+// Lock form after successful submission
+function lockForm() {
+  document.getElementById("staffName").disabled = true;
   document.getElementById("dropNumber").disabled = true;
+  
+  const inputs = document.querySelectorAll("input[type='number']");
+  inputs.forEach(input => input.disabled = true);
+  
+  const buttons = document.querySelectorAll(".btn-qty");
+  buttons.forEach(btn => btn.disabled = true);
 }
 
-function newForm(){
-  document.getElementById("submitBtn").style.display = "block";
-  document.getElementById("resetBtn").style.display = "none";
-  document.getElementById("lastSubmit").innerHTML = "";
-  
-  // Habilitar select
+// Reset form for new submission
+function resetForm() {
+  // Enable inputs
+  document.getElementById("staffName").disabled = false;
   document.getElementById("dropNumber").disabled = false;
   
-  // Limpiar y habilitar inputs
-  const inputs = document.querySelectorAll("input");
-  inputs.forEach(i => {
-    i.disabled = false;
-    i.value = "0";
+  const inputs = document.querySelectorAll("input[type='number']");
+  inputs.forEach(input => {
+    input.disabled = false;
+    input.value = '';
   });
   
-  const firstInput = document.querySelector("input");
-  if(firstInput) firstInput.focus();
+  const buttons = document.querySelectorAll(".btn-qty");
+  buttons.forEach(btn => btn.disabled = false);
+  
+  // Clear status message
+  document.getElementById("statusMessage").style.display = 'none';
+  
+  // Show submit button, hide new submission button
+  document.getElementById("submitBtn").style.display = 'block';
+  document.getElementById("submitBtn").disabled = false;
+  document.getElementById("submitBtn").innerText = '📤 SUBMIT DROP';
+  document.getElementById("newSubmitBtn").style.display = 'none';
+  
+  // Focus on staff name
+  document.getElementById("staffName").focus();
 }
 
+// Show status message
+function showStatus(message, type = 'success') {
+  const statusEl = document.getElementById("statusMessage");
+  statusEl.innerText = message;
+  statusEl.className = `status-message ${type === 'error' ? 'error' : ''}`;
+  statusEl.style.display = 'block';
+  
+  // Auto-hide after 10 seconds
+  setTimeout(() => {
+    if(statusEl.style.display === 'block') {
+      statusEl.style.display = 'none';
+    }
+  }, 10000);
+}
+
+// Initialize app
 setDate();
-loadIngredients();
+loadPizzas();
 </script>
 
 </body>
