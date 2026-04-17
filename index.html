@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Bambino Pizza - Kitchen</title>
+<title>Bambino Pizza - Kitchen App</title>
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -43,7 +43,7 @@ body {
 }
 
 h2 {
-  margin-bottom: 5px;
+  margin-bottom: 25px;
   color: #333;
 }
 
@@ -57,18 +57,18 @@ h2 {
 .tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   border-bottom: 2px solid #e0e0e0;
 }
 
 .tab {
   flex: 1;
-  padding: 12px 20px;
+  padding: 15px 20px;
   background: none;
   border: none;
   font-size: 18px;
   font-weight: 600;
-  color: #999;
+  color: #666;
   cursor: pointer;
   transition: all 0.3s;
   border-radius: 8px 8px 0 0;
@@ -76,13 +76,14 @@ h2 {
   bottom: -2px;
 }
 
+.tab:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
 .tab.active {
   color: #e63946;
   border-bottom: 3px solid #e63946;
-}
-
-.tab:hover {
-  background: #f0f0f0;
 }
 
 /* Tab Content */
@@ -94,9 +95,65 @@ h2 {
   display: block;
 }
 
+/* Welcome Screen */
+.welcome-screen {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.welcome-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.welcome-text {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.welcome-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.welcome-btn {
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 150px;
+}
+
+.welcome-btn.drops {
+  background: #e63946;
+  color: white;
+}
+
+.welcome-btn.drops:hover {
+  background: #c1121f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+}
+
+.welcome-btn.portions {
+  background: #4a90e2;
+  color: white;
+}
+
+.welcome-btn.portions:hover {
+  background: #357abd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
 /* Form Styles */
 .user-section {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   text-align: left;
 }
 
@@ -122,21 +179,33 @@ h2 {
   border-color: #e63946;
 }
 
+.user-input:disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .drop-section {
   margin-bottom: 25px;
   text-align: left;
 }
 
+.drop-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .drop-label {
-  display: block;
   font-size: 16px;
   font-weight: 600;
   color: #555;
-  margin-bottom: 8px;
+  white-space: nowrap;
 }
 
 .drop-select {
-  width: 100%;
+  flex: 1;
   padding: 12px 15px;
   font-size: 18px;
   border: 2px solid #ddd;
@@ -154,11 +223,19 @@ h2 {
   background: #f5f5f5;
   color: #999;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Pizza Rows */
 .pizza-grid {
   margin: 25px 0;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.pizza-grid.loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .row {
@@ -199,6 +276,8 @@ input:focus {
 input:disabled {
   background: #f5f5f5;
   color: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 input::-webkit-outer-spin-button,
@@ -221,16 +300,18 @@ input[type=number] {
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
 }
 
-.btn-qty:hover {
+.btn-qty:hover:not(:disabled) {
   background: #c1121f;
+  transform: scale(1.05);
 }
 
 .btn-qty:disabled {
   background: #ccc;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Action Buttons */
@@ -244,12 +325,42 @@ input[type=number] {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
   margin-top: 20px;
+  position: relative;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: #c1121f;
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-primary.loading {
+  color: transparent;
+}
+
+.btn-primary.loading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .btn-secondary {
@@ -267,6 +378,24 @@ input[type=number] {
 
 .btn-secondary:hover {
   background: #357abd;
+}
+
+/* Back Button */
+.btn-back {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #f0f0f0;
+  color: #666;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 15px;
+}
+
+.btn-back:hover {
+  background: #e0e0e0;
 }
 
 /* Status Messages */
@@ -327,6 +456,24 @@ input[type=number] {
     width: 35px;
     height: 35px;
   }
+  
+  .welcome-buttons {
+    flex-direction: column;
+  }
+  
+  .welcome-btn {
+    width: 100%;
+  }
+  
+  .drop-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .drop-select {
+    width: 100%;
+  }
 }
 </style>
 </head>
@@ -336,18 +483,32 @@ input[type=number] {
 <div class="container">
   <img src="icon.png" class="logo" alt="Bambino Pizza">
   
-  <h2>🍕 Kitchen Manager</h2>
+  <h2>🍕 Kitchen App</h2>
   
   <div id="todayDate" class="date"></div>
   
   <!-- Tabs Navigation -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('drops')">📦 Drops</button>
+    <button class="tab" onclick="switchTab('drops')">📦 Drops</button>
     <button class="tab" onclick="switchTab('portions')">🥘 Portions</button>
   </div>
   
+  <!-- Welcome Screen (shown when no tab is active) -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-icon">👨‍🍳</div>
+    <div class="welcome-text">Select a section to begin</div>
+    <div class="welcome-buttons">
+      <button class="welcome-btn drops" onclick="switchTab('drops')">
+        📦 Drops
+      </button>
+      <button class="welcome-btn portions" onclick="switchTab('portions')">
+        🥘 Portions
+      </button>
+    </div>
+  </div>
+  
   <!-- Drops Tab Content -->
-  <div id="dropsTab" class="tab-content active">
+  <div id="dropsTab" class="tab-content">
     <div class="user-section">
       <label class="user-label">👤 Staff Name:</label>
       <input 
@@ -360,14 +521,16 @@ input[type=number] {
     </div>
     
     <div class="drop-section">
-      <label class="drop-label">🔢 Drop Number:</label>
-      <select id="dropNumber" class="drop-select">
-        <option value="1">Drop 1</option>
-        <option value="2">Drop 2</option>
-        <option value="3">Drop 3</option>
-        <option value="4">Drop 4</option>
-        <option value="5">Drop 5</option>
-      </select>
+      <div class="drop-row">
+        <label class="drop-label">🔢 Drop Number:</label>
+        <select id="dropNumber" class="drop-select">
+          <option value="1">Drop 1</option>
+          <option value="2">Drop 2</option>
+          <option value="3">Drop 3</option>
+          <option value="4">Drop 4</option>
+          <option value="5">Drop 5</option>
+        </select>
+      </div>
     </div>
     
     <div id="statusMessage" class="status-message" style="display: none;"></div>
@@ -382,6 +545,10 @@ input[type=number] {
       🔄 NEW SUBMISSION
     </button>
     
+    <button class="btn-back" onclick="backToWelcome()">
+      ← Back to Menu
+    </button>
+    
     <div class="note">
       ⚠️ Verify all quantities before submitting
     </div>
@@ -394,25 +561,61 @@ input[type=number] {
       <p style="font-weight: 600; margin-bottom: 10px;">Portions Section</p>
       <p>Coming soon...</p>
     </div>
+    
+    <button class="btn-back" onclick="backToWelcome()">
+      ← Back to Menu
+    </button>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwAsjdtQi-Z4SekT-bJIHJPSxkzPVtulT5PmT6BHc2nGS68EFXaG5l5UGsqk8mgD3sr/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzlGD-e2E_r2a_4r9dt2D3GjUUZGmZhucagma05twykSrpwDf4vb5wT3n0UNl4DLk/exec";
 
 // Tab Switching
 function switchTab(tabName) {
+  // Hide welcome screen
+  document.getElementById("welcomeScreen").style.display = "none";
+  
   // Update tab buttons
   document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.remove('active');
   });
-  event.target.classList.add('active');
+  
+  // Find and activate the correct tab button
+  const tabs = document.querySelectorAll('.tab');
+  if(tabName === 'drops') {
+    tabs[0].classList.add('active');
+  } else {
+    tabs[1].classList.add('active');
+  }
   
   // Update tab content
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.remove('active');
   });
   document.getElementById(tabName + 'Tab').classList.add('active');
+  
+  // Load pizzas if drops tab and not already loaded
+  if(tabName === 'drops' && !window.pizzasLoaded) {
+    loadPizzas();
+    window.pizzasLoaded = true;
+  }
+}
+
+// Back to welcome screen
+function backToWelcome() {
+  // Hide all tabs content
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Show welcome screen
+  document.getElementById("welcomeScreen").style.display = "block";
 }
 
 // Set current date
@@ -458,6 +661,7 @@ function renderPizzaForm(pizzas) {
         inputmode="numeric"
         pattern="[0-9]*"
         placeholder="0"
+        value=""
         onkeydown="handleEnterKey(event)"
         oninput="validateInput(this)"
       >
@@ -467,9 +671,8 @@ function renderPizzaForm(pizzas) {
     container.appendChild(div);
   });
   
-  // Focus on first input
-  const firstInput = document.querySelector("input[type='number']");
-  if(firstInput) firstInput.focus();
+  // Focus on staff name
+  document.getElementById("staffName").focus();
 }
 
 // Adjust quantity with +/- buttons
@@ -479,15 +682,13 @@ function adjustQuantity(id, delta) {
   
   let current = parseInt(input.value) || 0;
   current = Math.max(0, current + delta);
-  input.value = current || ''; // Empty string if 0
+  input.value = current || '';
 }
 
 // Validate input to prevent negative numbers
 function validateInput(input) {
   let value = parseInt(input.value);
   if(isNaN(value) || value < 0) {
-    input.value = '';
-  } else if(value === 0) {
     input.value = '';
   }
 }
@@ -514,35 +715,34 @@ async function submitDrop() {
     return;
   }
   
-  // Collect pizza quantities
+  // Collect ALL pizza quantities (including zeros)
   const inputs = document.querySelectorAll("input[type='number']");
   const pizzas = [];
-  let hasQuantity = false;
   
   inputs.forEach(input => {
     const quantity = parseInt(input.value) || 0;
-    if(quantity > 0) {
-      hasQuantity = true;
-      pizzas.push({
-        pizza: input.dataset.pizzaName,
-        quantity: quantity
-      });
-    }
+    pizzas.push({
+      pizza: input.dataset.pizzaName,
+      quantity: quantity
+    });
   });
-  
-  // Validate at least one pizza has quantity
-  if(!hasQuantity) {
-    showStatus('Please enter at least one pizza quantity', 'error');
-    return;
-  }
   
   // Confirm submission
   const dropNumber = document.getElementById("dropNumber").value;
-  const confirmMsg = `Confirm Drop #${dropNumber} submission?\n\nStaff: ${staffName}\nTotal pizzas: ${pizzas.length} types`;
+  const totalPizzas = pizzas.reduce((sum, p) => sum + p.quantity, 0);
+  const confirmMsg = `Confirm Drop #${dropNumber} submission?\n\nStaff: ${staffName}\nTotal pizzas: ${totalPizzas}`;
   
   if(!confirm(confirmMsg)) {
     return;
   }
+  
+  // Lock form immediately
+  lockForm();
+  
+  // Show loading state
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.classList.add('loading');
+  document.getElementById("pizza-grid")?.classList.add('loading');
   
   // Prepare payload
   const payload = {
@@ -551,20 +751,14 @@ async function submitDrop() {
     pizzas: pizzas
   };
   
-  // Show loading state
-  const submitBtn = document.getElementById("submitBtn");
-  const originalText = submitBtn.innerText;
-  submitBtn.innerText = '⏳ Submitting...';
-  submitBtn.disabled = true;
-  
   try {
     const res = await fetch(`${SCRIPT_URL}?action=submitDrop&data=${encodeURIComponent(JSON.stringify(payload))}`);
     const result = await res.json();
     
+    // Remove loading state
+    submitBtn.classList.remove('loading');
+    
     if(result.status === "ok") {
-      // Lock form
-      lockForm();
-      
       // Show success message
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -575,17 +769,20 @@ async function submitDrop() {
       document.getElementById("newSubmitBtn").style.display = 'block';
     } else {
       showStatus('Error saving data. Please try again.', 'error');
-      submitBtn.innerText = originalText;
+      unlockForm();
       submitBtn.disabled = false;
     }
   } catch(error) {
+    // Remove loading state
+    submitBtn.classList.remove('loading');
+    
     showStatus('Connection error. Please check your internet.', 'error');
-    submitBtn.innerText = originalText;
+    unlockForm();
     submitBtn.disabled = false;
   }
 }
 
-// Lock form after successful submission
+// Lock form after submission
 function lockForm() {
   document.getElementById("staffName").disabled = true;
   document.getElementById("dropNumber").disabled = true;
@@ -595,6 +792,21 @@ function lockForm() {
   
   const buttons = document.querySelectorAll(".btn-qty");
   buttons.forEach(btn => btn.disabled = true);
+  
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+}
+
+// Unlock form (in case of error)
+function unlockForm() {
+  document.getElementById("staffName").disabled = false;
+  document.getElementById("dropNumber").disabled = false;
+  
+  const inputs = document.querySelectorAll("input[type='number']");
+  inputs.forEach(input => input.disabled = false);
+  
+  const buttons = document.querySelectorAll(".btn-qty");
+  buttons.forEach(btn => btn.disabled = false);
 }
 
 // Reset form for new submission
@@ -616,9 +828,10 @@ function resetForm() {
   document.getElementById("statusMessage").style.display = 'none';
   
   // Show submit button, hide new submission button
-  document.getElementById("submitBtn").style.display = 'block';
-  document.getElementById("submitBtn").disabled = false;
-  document.getElementById("submitBtn").innerText = '📤 SUBMIT DROP';
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.style.display = 'block';
+  submitBtn.disabled = false;
+  submitBtn.classList.remove('loading');
   document.getElementById("newSubmitBtn").style.display = 'none';
   
   // Focus on staff name
@@ -642,7 +855,8 @@ function showStatus(message, type = 'success') {
 
 // Initialize app
 setDate();
-loadPizzas();
+// Don't load pizzas until drops tab is selected
+window.pizzasLoaded = false;
 </script>
 
 </body>
