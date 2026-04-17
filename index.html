@@ -226,14 +226,14 @@ h2 {
   opacity: 0.7;
 }
 
-/* Pizza Rows */
-.pizza-grid {
+/* Items Grid */
+.items-grid {
   margin: 25px 0;
   opacity: 1;
   transition: opacity 0.3s;
 }
 
-.pizza-grid.loading {
+.items-grid.loading {
   opacity: 0.6;
   pointer-events: none;
 }
@@ -249,13 +249,19 @@ h2 {
   border-radius: 8px;
 }
 
-.ingredientBox {
+.itemBox {
   text-align: left;
 }
 
-.ingredient {
+.item-name {
   font-weight: 600;
   font-size: 16px;
+}
+
+.item-unit {
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
 }
 
 input {
@@ -303,9 +309,21 @@ input[type=number] {
   transition: all 0.3s;
 }
 
+.btn-qty.drops {
+  background: #e63946;
+}
+
+.btn-qty.portions {
+  background: #4a90e2;
+}
+
 .btn-qty:hover:not(:disabled) {
   background: #c1121f;
   transform: scale(1.05);
+}
+
+.btn-qty.portions:hover:not(:disabled) {
+  background: #357abd;
 }
 
 .btn-qty:disabled {
@@ -330,8 +348,20 @@ input[type=number] {
   position: relative;
 }
 
+.btn-primary.drops {
+  background: #e63946;
+}
+
+.btn-primary.portions {
+  background: #4a90e2;
+}
+
 .btn-primary:hover:not(:disabled) {
   background: #c1121f;
+}
+
+.btn-primary.portions:hover:not(:disabled) {
+  background: #357abd;
 }
 
 .btn-primary:disabled {
@@ -416,15 +446,15 @@ input[type=number] {
   color: #c62828;
 }
 
-/* Portions Section Placeholder */
-.placeholder-message {
-  padding: 40px 20px;
-  text-align: center;
-  color: #999;
-  font-size: 16px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border: 2px dashed #ddd;
+.last-submission-info {
+  margin: 15px 0;
+  padding: 12px;
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 14px;
+  color: #e65100;
 }
 
 .note {
@@ -507,13 +537,13 @@ input[type=number] {
     </div>
   </div>
   
-  <!-- Drops Tab Content -->
+  <!-- ==================== DROPS TAB ==================== -->
   <div id="dropsTab" class="tab-content">
     <div class="user-section">
       <label class="user-label">👤 Staff Name:</label>
       <input 
         type="text" 
-        id="staffName" 
+        id="dropsStaffName" 
         class="user-input" 
         placeholder="Enter your name"
         autocomplete="off"
@@ -533,15 +563,16 @@ input[type=number] {
       </div>
     </div>
     
-    <div id="statusMessage" class="status-message" style="display: none;"></div>
+    <div id="dropsLastSubmission" class="last-submission-info" style="display: none;"></div>
+    <div id="dropsStatusMessage" class="status-message" style="display: none;"></div>
     
-    <div id="form" class="pizza-grid"></div>
+    <div id="dropsForm" class="items-grid"></div>
     
-    <button id="submitBtn" class="btn-primary" onclick="submitDrop()">
+    <button id="dropsSubmitBtn" class="btn-primary drops" onclick="submitDrop()">
       📤 SUBMIT DROP
     </button>
     
-    <button id="newSubmitBtn" class="btn-secondary" onclick="resetForm()" style="display: none;">
+    <button id="dropsNewSubmitBtn" class="btn-secondary" onclick="resetDropsForm()" style="display: none;">
       🔄 NEW SUBMISSION
     </button>
     
@@ -554,34 +585,82 @@ input[type=number] {
     </div>
   </div>
   
-  <!-- Portions Tab Content -->
+  <!-- ==================== PORTIONS TAB ==================== -->
   <div id="portionsTab" class="tab-content">
-    <div class="placeholder-message">
-      <p style="font-size: 48px; margin: 20px 0;">🥘</p>
-      <p style="font-weight: 600; margin-bottom: 10px;">Portions Section</p>
-      <p>Coming soon...</p>
+    <div class="user-section">
+      <label class="user-label">👤 Staff Name:</label>
+      <input 
+        type="text" 
+        id="portionsStaffName" 
+        class="user-input" 
+        placeholder="Enter your name"
+        autocomplete="off"
+      >
     </div>
+    
+    <div id="portionsLastSubmission" class="last-submission-info" style="display: none;"></div>
+    <div id="portionsStatusMessage" class="status-message" style="display: none;"></div>
+    
+    <div id="portionsForm" class="items-grid"></div>
+    
+    <button id="portionsSubmitBtn" class="btn-primary portions" onclick="submitPortions()">
+      📤 SUBMIT PORTIONS
+    </button>
+    
+    <button id="portionsNewSubmitBtn" class="btn-secondary" onclick="resetPortionsForm()" style="display: none;">
+      🔄 NEW SUBMISSION
+    </button>
     
     <button class="btn-back" onclick="backToWelcome()">
       ← Back to Menu
     </button>
+    
+    <div class="note">
+      ⚠️ Verify all quantities before submitting
+    </div>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzlGD-e2E_r2a_4r9dt2D3GjUUZGmZhucagma05twykSrpwDf4vb5wT3n0UNl4DLk/exec";
+// ==================== CONFIGURATION ====================
+// TWO DIFFERENT ENDPOINTS FOR TWO DIFFERENT GOOGLE SHEETS
+const ENDPOINTS = {
+  // Drops - Bambino Pizza Google Sheet
+  DROPS: "https://script.google.com/macros/s/AKfycbxguKcw1zBOScTEsrmYbRdqgSH0y6qcgMxvpYDCxvL-CKAr_8noC_mnqOEDMG9H6yY/exec",
+  
+  // Portions - CPU/Preps Google Sheet (CAMBIA ESTA URL por la URL real de tu otro script)
+  PORTIONS: "https://script.google.com/macros/s/AKfycbxOkG1NhG8nCPNc04kNpAmK1m3BGJorHCpCKvFkhLZghQ2T1HHUWq3G9DGX1taks6cy/exec"
+};
 
-// Tab Switching
+// ==================== GLOBAL STATE ====================
+window.dropsLoaded = false;
+window.portionsLoaded = false;
+window.lastDropsSubmission = null;
+window.lastPortionsSubmission = null;
+
+// Load saved state from localStorage
+function loadSavedState() {
+  const savedDrops = localStorage.getItem('kitchen_last_drops_submission');
+  if(savedDrops) {
+    window.lastDropsSubmission = JSON.parse(savedDrops);
+    displayLastDropsSubmission();
+  }
+  
+  const savedPortions = localStorage.getItem('kitchen_last_portions_submission');
+  if(savedPortions) {
+    window.lastPortionsSubmission = JSON.parse(savedPortions);
+    displayLastPortionsSubmission();
+  }
+}
+
+// ==================== TAB SWITCHING ====================
 function switchTab(tabName) {
-  // Hide welcome screen
   document.getElementById("welcomeScreen").style.display = "none";
   
-  // Update tab buttons
   document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.remove('active');
   });
   
-  // Find and activate the correct tab button
   const tabs = document.querySelectorAll('.tab');
   if(tabName === 'drops') {
     tabs[0].classList.add('active');
@@ -589,95 +668,112 @@ function switchTab(tabName) {
     tabs[1].classList.add('active');
   }
   
-  // Update tab content
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.remove('active');
   });
   document.getElementById(tabName + 'Tab').classList.add('active');
   
-  // Load pizzas if drops tab and not already loaded
-  if(tabName === 'drops' && !window.pizzasLoaded) {
-    loadPizzas();
-    window.pizzasLoaded = true;
+  // Load data when tab is selected
+  if(tabName === 'drops' && !window.dropsLoaded) {
+    loadDropsItems();
+    window.dropsLoaded = true;
+  }
+  
+  if(tabName === 'portions' && !window.portionsLoaded) {
+    loadPortionsItems();
+    window.portionsLoaded = true;
   }
 }
 
-// Back to welcome screen
 function backToWelcome() {
-  // Hide all tabs content
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.remove('active');
   });
   
-  // Remove active class from all tabs
   document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.remove('active');
   });
   
-  // Show welcome screen
   document.getElementById("welcomeScreen").style.display = "block";
 }
 
-// Set current date
+// ==================== DATE ====================
 function setDate() {
   const today = new Date();
   const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
   document.getElementById("todayDate").innerText = today.toLocaleDateString('en-GB', options);
 }
 
-// Load pizzas from sheet
-async function loadPizzas() {
+// ==================== DROPS FUNCTIONS ====================
+async function loadDropsItems() {
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getPizzas`);
+    const res = await fetch(`${ENDPOINTS.DROPS}?action=getPizzas`);
     const data = await res.json();
-    renderPizzaForm(data);
+    renderDropsForm(data);
   } catch(error) {
-    showStatus('Error loading pizzas. Please refresh.', 'error');
+    showStatus('drops', 'Error loading pizzas. Please refresh.', 'error');
   }
 }
 
-// Render pizza input form
-function renderPizzaForm(pizzas) {
-  const container = document.getElementById("form");
+function renderDropsForm(items) {
+  const container = document.getElementById("dropsForm");
   container.innerHTML = "";
   
-  pizzas.forEach(pizza => {
+  // Check if there's a locked submission
+  const isLocked = window.lastDropsSubmission && !window.lastDropsSubmission.completed;
+  
+  items.forEach(item => {
     const div = document.createElement("div");
     div.className = "row";
     
-    // Sanitize pizza name for ID
-    const pizzaId = pizza.replace(/[^a-zA-Z0-9]/g, '_');
+    const itemId = item.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    // Get saved value if exists
+    let savedValue = '';
+    if(isLocked && window.lastDropsSubmission) {
+      const savedItem = window.lastDropsSubmission.data.pizzas.find(p => p.pizza === item);
+      if(savedItem) savedValue = savedItem.quantity;
+    }
     
     div.innerHTML = `
-      <div class="ingredientBox">
-        <div class="ingredient">${pizza}</div>
+      <div class="itemBox">
+        <div class="item-name">${item}</div>
       </div>
-      <button class="btn-qty" onclick="adjustQuantity('${pizzaId}', -1)">−</button>
+      <button class="btn-qty drops" onclick="adjustDropsQuantity('${itemId}', -1)">−</button>
       <input 
         type="number"
-        id="${pizzaId}"
-        data-pizza-name="${pizza}"
+        id="drops_${itemId}"
+        data-item-name="${item}"
         min="0"
         inputmode="numeric"
         pattern="[0-9]*"
         placeholder="0"
-        value=""
-        onkeydown="handleEnterKey(event)"
+        value="${savedValue}"
+        onkeydown="handleEnterKey(event, 'drops')"
         oninput="validateInput(this)"
+        ${isLocked ? 'disabled' : ''}
       >
-      <button class="btn-qty" onclick="adjustQuantity('${pizzaId}', 1)">+</button>
+      <button class="btn-qty drops" onclick="adjustDropsQuantity('${itemId}', 1)" ${isLocked ? 'disabled' : ''}>+</button>
     `;
     
     container.appendChild(div);
   });
   
-  // Focus on staff name
-  document.getElementById("staffName").focus();
+  if(isLocked) {
+    // Lock the form
+    document.getElementById("dropsStaffName").value = window.lastDropsSubmission.staffName || '';
+    document.getElementById("dropsStaffName").disabled = true;
+    document.getElementById("dropNumber").value = window.lastDropsSubmission.dropNumber || '1';
+    document.getElementById("dropNumber").disabled = true;
+    document.getElementById("dropsSubmitBtn").style.display = 'none';
+    document.getElementById("dropsNewSubmitBtn").style.display = 'block';
+  } else {
+    document.getElementById("dropsStaffName").focus();
+  }
 }
 
-// Adjust quantity with +/- buttons
-function adjustQuantity(id, delta) {
-  const input = document.getElementById(id);
+function adjustDropsQuantity(id, delta) {
+  const input = document.getElementById('drops_' + id);
   if(!input || input.disabled) return;
   
   let current = parseInt(input.value) || 0;
@@ -685,66 +781,37 @@ function adjustQuantity(id, delta) {
   input.value = current || '';
 }
 
-// Validate input to prevent negative numbers
-function validateInput(input) {
-  let value = parseInt(input.value);
-  if(isNaN(value) || value < 0) {
-    input.value = '';
-  }
-}
-
-// Handle Enter key navigation
-function handleEnterKey(event) {
-  if(event.key === "Enter") {
-    event.preventDefault();
-    const inputs = Array.from(document.querySelectorAll("input[type='number']:not(:disabled)"));
-    const index = inputs.indexOf(event.target);
-    if(index > -1 && index < inputs.length - 1) {
-      inputs[index + 1].focus();
-    }
-  }
-}
-
-// Submit drop data
 async function submitDrop() {
-  // Validate staff name
-  const staffName = document.getElementById("staffName").value.trim();
+  const staffName = document.getElementById("dropsStaffName").value.trim();
   if(!staffName) {
-    showStatus('Please enter staff name', 'error');
-    document.getElementById("staffName").focus();
+    showStatus('drops', 'Please enter staff name', 'error');
+    document.getElementById("dropsStaffName").focus();
     return;
   }
   
-  // Collect ALL pizza quantities (including zeros)
-  const inputs = document.querySelectorAll("input[type='number']");
+  const inputs = document.querySelectorAll("#dropsForm input[type='number']");
   const pizzas = [];
   
   inputs.forEach(input => {
-    const quantity = parseInt(input.value) || 0;
     pizzas.push({
-      pizza: input.dataset.pizzaName,
-      quantity: quantity
+      pizza: input.dataset.itemName,
+      quantity: parseInt(input.value) || 0
     });
   });
   
-  // Confirm submission
   const dropNumber = document.getElementById("dropNumber").value;
   const totalPizzas = pizzas.reduce((sum, p) => sum + p.quantity, 0);
-  const confirmMsg = `Confirm Drop #${dropNumber} submission?\n\nStaff: ${staffName}\nTotal pizzas: ${totalPizzas}`;
   
-  if(!confirm(confirmMsg)) {
+  if(!confirm(`Confirm Drop #${dropNumber} submission?\n\nStaff: ${staffName}\nTotal pizzas: ${totalPizzas}`)) {
     return;
   }
   
   // Lock form immediately
-  lockForm();
+  lockDropsForm();
   
-  // Show loading state
-  const submitBtn = document.getElementById("submitBtn");
+  const submitBtn = document.getElementById("dropsSubmitBtn");
   submitBtn.classList.add('loading');
-  document.getElementById("pizza-grid")?.classList.add('loading');
   
-  // Prepare payload
   const payload = {
     staffName: staffName,
     dropNumber: dropNumber,
@@ -752,100 +819,309 @@ async function submitDrop() {
   };
   
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=submitDrop&data=${encodeURIComponent(JSON.stringify(payload))}`);
+    const res = await fetch(`${ENDPOINTS.DROPS}?action=submitDrop&data=${encodeURIComponent(JSON.stringify(payload))}`);
     const result = await res.json();
     
-    // Remove loading state
     submitBtn.classList.remove('loading');
     
     if(result.status === "ok") {
-      // Show success message
+      // Save submission to localStorage
+      const submission = {
+        timestamp: new Date().toISOString(),
+        staffName: staffName,
+        dropNumber: dropNumber,
+        data: payload,
+        completed: true
+      };
+      localStorage.setItem('kitchen_last_drops_submission', JSON.stringify(submission));
+      window.lastDropsSubmission = submission;
+      
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      showStatus(`✅ Drop #${dropNumber} submitted successfully at ${timeStr} by ${staffName}`, 'success');
+      showStatus('drops', `✅ Drop #${dropNumber} submitted at ${timeStr} by ${staffName}`, 'success');
+      displayLastDropsSubmission();
       
-      // Hide submit button, show new submission button
-      document.getElementById("submitBtn").style.display = 'none';
-      document.getElementById("newSubmitBtn").style.display = 'block';
+      document.getElementById("dropsSubmitBtn").style.display = 'none';
+      document.getElementById("dropsNewSubmitBtn").style.display = 'block';
     } else {
-      showStatus('Error saving data. Please try again.', 'error');
-      unlockForm();
-      submitBtn.disabled = false;
+      showStatus('drops', 'Error saving data. Please try again.', 'error');
+      unlockDropsForm();
     }
   } catch(error) {
-    // Remove loading state
     submitBtn.classList.remove('loading');
-    
-    showStatus('Connection error. Please check your internet.', 'error');
-    unlockForm();
-    submitBtn.disabled = false;
+    showStatus('drops', 'Connection error. Please check your internet.', 'error');
+    unlockDropsForm();
   }
 }
 
-// Lock form after submission
-function lockForm() {
-  document.getElementById("staffName").disabled = true;
+function lockDropsForm() {
+  document.getElementById("dropsStaffName").disabled = true;
   document.getElementById("dropNumber").disabled = true;
   
-  const inputs = document.querySelectorAll("input[type='number']");
-  inputs.forEach(input => input.disabled = true);
-  
-  const buttons = document.querySelectorAll(".btn-qty");
-  buttons.forEach(btn => btn.disabled = true);
-  
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
+  document.querySelectorAll("#dropsForm input").forEach(input => input.disabled = true);
+  document.querySelectorAll("#dropsForm .btn-qty").forEach(btn => btn.disabled = true);
+  document.getElementById("dropsSubmitBtn").disabled = true;
 }
 
-// Unlock form (in case of error)
-function unlockForm() {
-  document.getElementById("staffName").disabled = false;
+function unlockDropsForm() {
+  document.getElementById("dropsStaffName").disabled = false;
   document.getElementById("dropNumber").disabled = false;
   
-  const inputs = document.querySelectorAll("input[type='number']");
-  inputs.forEach(input => input.disabled = false);
-  
-  const buttons = document.querySelectorAll(".btn-qty");
-  buttons.forEach(btn => btn.disabled = false);
+  document.querySelectorAll("#dropsForm input").forEach(input => input.disabled = false);
+  document.querySelectorAll("#dropsForm .btn-qty").forEach(btn => btn.disabled = false);
+  document.getElementById("dropsSubmitBtn").disabled = false;
 }
 
-// Reset form for new submission
-function resetForm() {
-  // Enable inputs
-  document.getElementById("staffName").disabled = false;
-  document.getElementById("dropNumber").disabled = false;
+function resetDropsForm() {
+  // Clear saved submission
+  localStorage.removeItem('kitchen_last_drops_submission');
+  window.lastDropsSubmission = null;
   
-  const inputs = document.querySelectorAll("input[type='number']");
-  inputs.forEach(input => {
-    input.disabled = false;
-    input.value = '';
+  unlockDropsForm();
+  
+  document.getElementById("dropsStaffName").value = '';
+  document.getElementById("dropNumber").value = '1';
+  
+  document.querySelectorAll("#dropsForm input").forEach(input => input.value = '');
+  
+  document.getElementById("dropsStatusMessage").style.display = 'none';
+  document.getElementById("dropsLastSubmission").style.display = 'none';
+  
+  document.getElementById("dropsSubmitBtn").style.display = 'block';
+  document.getElementById("dropsSubmitBtn").disabled = false;
+  document.getElementById("dropsSubmitBtn").classList.remove('loading');
+  document.getElementById("dropsNewSubmitBtn").style.display = 'none';
+  
+  document.getElementById("dropsStaffName").focus();
+}
+
+function displayLastDropsSubmission() {
+  if(!window.lastDropsSubmission) return;
+  
+  const sub = window.lastDropsSubmission;
+  const date = new Date(sub.timestamp);
+  const dateStr = date.toLocaleDateString('en-GB');
+  const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  
+  const el = document.getElementById("dropsLastSubmission");
+  el.innerHTML = `📋 Last submission: Drop #${sub.dropNumber} by ${sub.staffName} on ${dateStr} at ${timeStr}`;
+  el.style.display = 'block';
+}
+
+// ==================== PORTIONS FUNCTIONS ====================
+async function loadPortionsItems() {
+  try {
+    const res = await fetch(`${ENDPOINTS.PORTIONS}?action=getPortionablePreps`);
+    const data = await res.json();
+    renderPortionsForm(data);
+  } catch(error) {
+    console.error('Error loading portions:', error);
+    showStatus('portions', 'Error loading preps. Please refresh.', 'error');
+  }
+}
+
+function renderPortionsForm(items) {
+  const container = document.getElementById("portionsForm");
+  container.innerHTML = "";
+  
+  const isLocked = window.lastPortionsSubmission && !window.lastPortionsSubmission.completed;
+  
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "row";
+    
+    const itemId = item.name.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    let savedValue = '';
+    if(isLocked && window.lastPortionsSubmission) {
+      const savedItem = window.lastPortionsSubmission.data.preps.find(p => p.name === item.name);
+      if(savedItem) savedValue = savedItem.quantity;
+    }
+    
+    div.innerHTML = `
+      <div class="itemBox">
+        <div class="item-name">${item.name}</div>
+        <div class="item-unit">${item.unit || ''}</div>
+      </div>
+      <button class="btn-qty portions" onclick="adjustPortionsQuantity('${itemId}', -1)">−</button>
+      <input 
+        type="number"
+        id="portions_${itemId}"
+        data-item-name="${item.name}"
+        min="0"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="0"
+        value="${savedValue}"
+        onkeydown="handleEnterKey(event, 'portions')"
+        oninput="validateInput(this)"
+        ${isLocked ? 'disabled' : ''}
+      >
+      <button class="btn-qty portions" onclick="adjustPortionsQuantity('${itemId}', 1)" ${isLocked ? 'disabled' : ''}>+</button>
+    `;
+    
+    container.appendChild(div);
   });
   
-  const buttons = document.querySelectorAll(".btn-qty");
-  buttons.forEach(btn => btn.disabled = false);
-  
-  // Clear status message
-  document.getElementById("statusMessage").style.display = 'none';
-  
-  // Show submit button, hide new submission button
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.style.display = 'block';
-  submitBtn.disabled = false;
-  submitBtn.classList.remove('loading');
-  document.getElementById("newSubmitBtn").style.display = 'none';
-  
-  // Focus on staff name
-  document.getElementById("staffName").focus();
+  if(isLocked) {
+    document.getElementById("portionsStaffName").value = window.lastPortionsSubmission.staffName || '';
+    document.getElementById("portionsStaffName").disabled = true;
+    document.getElementById("portionsSubmitBtn").style.display = 'none';
+    document.getElementById("portionsNewSubmitBtn").style.display = 'block';
+  } else {
+    document.getElementById("portionsStaffName").focus();
+  }
 }
 
-// Show status message
-function showStatus(message, type = 'success') {
-  const statusEl = document.getElementById("statusMessage");
+function adjustPortionsQuantity(id, delta) {
+  const input = document.getElementById('portions_' + id);
+  if(!input || input.disabled) return;
+  
+  let current = parseInt(input.value) || 0;
+  current = Math.max(0, current + delta);
+  input.value = current || '';
+}
+
+async function submitPortions() {
+  const staffName = document.getElementById("portionsStaffName").value.trim();
+  if(!staffName) {
+    showStatus('portions', 'Please enter staff name', 'error');
+    document.getElementById("portionsStaffName").focus();
+    return;
+  }
+  
+  const inputs = document.querySelectorAll("#portionsForm input[type='number']");
+  const preps = [];
+  
+  inputs.forEach(input => {
+    preps.push({
+      name: input.dataset.itemName,
+      quantity: parseInt(input.value) || 0
+    });
+  });
+  
+  const totalItems = preps.reduce((sum, p) => sum + p.quantity, 0);
+  
+  if(!confirm(`Confirm Portions submission?\n\nStaff: ${staffName}\nTotal items with quantity: ${preps.filter(p => p.quantity > 0).length}`)) {
+    return;
+  }
+  
+  lockPortionsForm();
+  
+  const submitBtn = document.getElementById("portionsSubmitBtn");
+  submitBtn.classList.add('loading');
+  
+  const payload = {
+    staffName: staffName,
+    preps: preps
+  };
+  
+  try {
+    const res = await fetch(`${ENDPOINTS.PORTIONS}?action=submitPortions&data=${encodeURIComponent(JSON.stringify(payload))}`);
+    const result = await res.json();
+    
+    submitBtn.classList.remove('loading');
+    
+    if(result.status === "ok") {
+      const submission = {
+        timestamp: new Date().toISOString(),
+        staffName: staffName,
+        data: payload,
+        completed: true
+      };
+      localStorage.setItem('kitchen_last_portions_submission', JSON.stringify(submission));
+      window.lastPortionsSubmission = submission;
+      
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      showStatus('portions', `✅ Portions submitted at ${timeStr} by ${staffName}`, 'success');
+      displayLastPortionsSubmission();
+      
+      document.getElementById("portionsSubmitBtn").style.display = 'none';
+      document.getElementById("portionsNewSubmitBtn").style.display = 'block';
+    } else {
+      showStatus('portions', 'Error saving data. Please try again.', 'error');
+      unlockPortionsForm();
+    }
+  } catch(error) {
+    submitBtn.classList.remove('loading');
+    showStatus('portions', 'Connection error. Please check your internet.', 'error');
+    unlockPortionsForm();
+  }
+}
+
+function lockPortionsForm() {
+  document.getElementById("portionsStaffName").disabled = true;
+  document.querySelectorAll("#portionsForm input").forEach(input => input.disabled = true);
+  document.querySelectorAll("#portionsForm .btn-qty").forEach(btn => btn.disabled = true);
+  document.getElementById("portionsSubmitBtn").disabled = true;
+}
+
+function unlockPortionsForm() {
+  document.getElementById("portionsStaffName").disabled = false;
+  document.querySelectorAll("#portionsForm input").forEach(input => input.disabled = false);
+  document.querySelectorAll("#portionsForm .btn-qty").forEach(btn => btn.disabled = false);
+  document.getElementById("portionsSubmitBtn").disabled = false;
+}
+
+function resetPortionsForm() {
+  localStorage.removeItem('kitchen_last_portions_submission');
+  window.lastPortionsSubmission = null;
+  
+  unlockPortionsForm();
+  
+  document.getElementById("portionsStaffName").value = '';
+  document.querySelectorAll("#portionsForm input").forEach(input => input.value = '');
+  
+  document.getElementById("portionsStatusMessage").style.display = 'none';
+  document.getElementById("portionsLastSubmission").style.display = 'none';
+  
+  document.getElementById("portionsSubmitBtn").style.display = 'block';
+  document.getElementById("portionsSubmitBtn").disabled = false;
+  document.getElementById("portionsSubmitBtn").classList.remove('loading');
+  document.getElementById("portionsNewSubmitBtn").style.display = 'none';
+  
+  document.getElementById("portionsStaffName").focus();
+}
+
+function displayLastPortionsSubmission() {
+  if(!window.lastPortionsSubmission) return;
+  
+  const sub = window.lastPortionsSubmission;
+  const date = new Date(sub.timestamp);
+  const dateStr = date.toLocaleDateString('en-GB');
+  const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  
+  const el = document.getElementById("portionsLastSubmission");
+  el.innerHTML = `📋 Last submission: ${sub.staffName} on ${dateStr} at ${timeStr}`;
+  el.style.display = 'block';
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function validateInput(input) {
+  let value = parseInt(input.value);
+  if(isNaN(value) || value < 0) {
+    input.value = '';
+  }
+}
+
+function handleEnterKey(event, section) {
+  if(event.key === "Enter") {
+    event.preventDefault();
+    const inputs = Array.from(document.querySelectorAll(`#${section}Form input[type='number']:not(:disabled)`));
+    const index = inputs.indexOf(event.target);
+    if(index > -1 && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+  }
+}
+
+function showStatus(section, message, type = 'success') {
+  const statusEl = document.getElementById(section + 'StatusMessage');
   statusEl.innerText = message;
   statusEl.className = `status-message ${type === 'error' ? 'error' : ''}`;
   statusEl.style.display = 'block';
   
-  // Auto-hide after 10 seconds
   setTimeout(() => {
     if(statusEl.style.display === 'block') {
       statusEl.style.display = 'none';
@@ -853,10 +1129,9 @@ function showStatus(message, type = 'success') {
   }, 10000);
 }
 
-// Initialize app
+// ==================== INITIALIZATION ====================
 setDate();
-// Don't load pizzas until drops tab is selected
-window.pizzasLoaded = false;
+loadSavedState();
 </script>
 
 </body>
